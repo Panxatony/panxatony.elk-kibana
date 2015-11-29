@@ -1,2 +1,53 @@
 ---
 # tasks file for panxatony.elk-kibana
+
+- name: Create a yum repository for Kibana
+  sudo: yes
+  template: src=kibana.repo.j2 dest=/etc/yum.repos.d/kibana.repo # owner=root group=root mode=0644
+  tags:
+    - kibana
+
+- name: Install kibana
+  sudo: yes
+  yum: name=kibana state=present
+  tags:
+    - kibana
+
+- name: Configure Kibana - Restrict localhost access
+  sudo: yes
+  lineinfile: "dest=/opt/kibana/config/kibana.yml regexp=^host: line='host: \"localhost\"'"
+  tags:
+    - kibana
+
+- name: Start Kibana and enable on boot
+  service: name=kibana state=started enabled=yes
+  tags:
+    - kibana
+
+# Set (httpd_can_network_connect) flag on and keep it persistent across reboots
+- seboolean: name=httpd_can_network_connect state=yes persistent=yes
+  tags:
+    - kibana
+
+- name: Create a Kibana login
+  sudo: yes
+  htpasswd:
+    #path: /etc/httpd/conf.d/kibana-htpasswd
+    path: /etc/nginx/conf.d/kibana.myhost.org.htpasswd
+    name: {{ nginx_kibana_user }}
+    password: {{ nginx_kibana_password }}
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart nginx
+  tags:
+    - kibana
+
+- name: Configure Kibana for nginx
+  sudo: yes
+  template: src=nginx_kibana.conf.j2 dest=/etc/nginx/conf.d/default.conf     #owner=root group=root mode=0644 
+  notify:
+    - restart nginx
+  tags:
+    - kibana

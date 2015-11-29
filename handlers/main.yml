@@ -1,2 +1,5 @@
 ---
 # handlers file for panxatony.elk-kibana
+
+- name: restart kibana
+  service: name=kibana4 state=restarted

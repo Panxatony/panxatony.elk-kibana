@@ -1,3 +1,10 @@
 ---
 # defaults file for panxatony.elk-kibana
 
+kibana_version: 4.3
+kibana_repo_baseurl: http://packages.elastic.co/kibana/{{ kibana_version }}/centos
+kibana_repo_gpg_key: http://packages.elastic.co/GPG-KEY-elasticsearch
+
+#nginx user
+nginx_kibana_user: kibanaadmin
+nginx_kibana_password: secret
