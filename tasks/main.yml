@@ -32,15 +32,15 @@
         state=present
   tags:
     - kibana
-         
+
 # install based on tgz
 - name: Download Kibana
-  get_url: url=https://download.elasticsearch.org/kibana/kibana/{{ kibana_sources }}.tar.gz
+  get_url: url=https://download.elasticsearch.org/kibana/kibana/{{ kibana_sources }}.tar.gz dest=/usr/local/src/{{ kibana_sources }}.tar.gz
   tags:
     - kibana
 
 - name: Extract and install Kibana (old skool)
-  command: "tar xzf /usr/local/src/{{ kibana_sources }} -C {{ kibana_root_dir }}"
+  unarchive: src=/usr/local/src/{{ kibana_sources }}.tar.gz dest=/opt/ copy=no
   tags:
     - kibana
 
@@ -82,7 +82,7 @@
   template: src=logrotate_kibana.j2 dest=/etc/logrotate.d/kibana
   tags:
     - kibana
-    
+
 - name: Create a Kibana login
   sudo: yes
   htpasswd:
