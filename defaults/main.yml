@@ -4,6 +4,15 @@
 kibana_version: 4.3
 kibana_repo_baseurl: http://packages.elastic.co/kibana/{{ kibana_version }}/centos
 kibana_repo_gpg_key: http://packages.elastic.co/GPG-KEY-elasticsearch
+kibana_log: /var/log/kibana.log
+kibana_log_rotate_count: 5
+kibana_log_rotate_interval: daily
+
+kibana_sources: https://download.elastic.co/kibana/kibana/kibana-4.3.0-linux-x64
+kibana_root_dir: /opt
+kibana_dir: "{{kibana_root_dir}}/kibana"
+kibana_group: kibana
+kibana_user: kibana
 
 #nginx user
 nginx_kibana_user: kibanaadmin

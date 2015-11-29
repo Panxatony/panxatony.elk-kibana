@@ -24,12 +24,65 @@
 #  tags:
 #    - kibana
 
+- name: Create service account for Kibana
+  user: name={{kibana_user}}
+        system=yes
+        home=/var/lib/kibana
+        shell=/bin/false
+        state=present
+  tags:
+    - kibana
+         
+# install based on tgz
+- name: Download Kibana
+  get_url: url=https://download.elasticsearch.org/kibana/kibana/{{ kibana_sources }}.tar.gz
+  tags:
+    - kibana
+
+- name: Extract and install Kibana (old skool)
+  command: "tar xzf /usr/local/src/{{ kibana_sources }} -C {{ kibana_root_dir }}"
+  tags:
+    - kibana
+
+- name: check kibana installed
+  stat: path={{ kibana_dir }}
+  register: kibana_dir_exists
+  tags:
+    - kibana
+
+- name: move kibana into place
+  command: mv {{ kibana_root_dir }}/{{ kibana_sources }} {{ kibana_dir }}
+  when: kibana_dir_exists.stat.islnk is not defined
+  tags:
+    - kibana
+
+- name: set correct permissions
+  file: path={{kibana_dir}} state=directory owner={{kibana_user}} group={{kibana_group}} recurse=yes
+  tags:
+    - kibana
+
 # Set (httpd_can_network_connect) flag on and keep it persistent across reboots
 - name: set SELinux http
   seboolean: name=httpd_can_network_connect state=yes persistent=yes
   tags:
     - kibana
 
+- name: Touch log file if it does not exist
+  command: touch {{ kibana_log }}
+           creates={{ kibana_log }}
+  tags:
+    - kibana
+
+- name: Set log file permissions
+  file: path={{ kibana_log }} owner={{kibana_user}} group={{kibana_group}} mode=0644
+  tags:
+    - kibana
+
+- name: Configure Kibana log rotation
+  template: src=logrotate_kibana.j2 dest=/etc/logrotate.d/kibana
+  tags:
+    - kibana
+    
 - name: Create a Kibana login
   sudo: yes
   htpasswd:
@@ -52,3 +105,5 @@
     - restart nginx
   tags:
     - kibana
+
+
