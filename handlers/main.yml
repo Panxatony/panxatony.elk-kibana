@@ -3,3 +3,5 @@
 
 - name: restart kibana
   service: name=kibana4 state=restarted
+  become: yes
+  become_user: root
