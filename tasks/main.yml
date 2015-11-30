@@ -81,6 +81,20 @@
   tags:
     - kibana
 
+- name: Copy init.d script
+  template: src=kibana-4.x-init.j2 dest=/etc/init.d/kibana owner=root group=root mode=0755
+  become: yes
+  become_user: root
+  tags:
+    - kibana
+
+- name: Copy default script
+  template: src=kibana-4.x-default.j2 dest=/etc/default/kibana owner=root group=root mode=0644
+  become: yes
+  become_user: root
+  tags:
+    - kibana
+
 - name: Touch log file if it does not exist
   command: touch {{ kibana_log }}
            creates={{ kibana_log }}
